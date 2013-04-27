@@ -13,11 +13,48 @@
 
   <script type="text/javascript">
     var canvas = document.getElementById('space');
-    canvas.width = document.width;
-    canvas.height = document.height;
+    var width = canvas.width = document.width;
+    var height = canvas.height = document.height;
 
     var ctx = canvas.getContext('2d');
-    ctx.strokeText('Hello, canvas!', 100, 100);
+
+    var keyCode = {
+      LEFT : 37,
+      UP   : 38,
+      RIGHT: 39,
+      DOWN : 40
+    }
+
+    var rocket = {
+      x: width / 2.0,
+      y: height / 2.0,
+      speed: 5
+    }
+
+    var navigation = {
+      37 : {x: -1, y:  0},
+      38 : {x:  0, y: -1},
+      39 : {x:  1, y:  0},
+      40 : {x:  0, y:  1}
+    }
+
+    document.onkeydown = function(e) {
+      e = e || window.event;
+      shift = navigation[e.keyCode];
+      if (shift) {
+        rocket.x += rocket.speed * shift.x;
+        rocket.y += rocket.speed * shift.y;
+      }
+    }
+
+    function drawWorld () {
+      ctx.fillRect(rocket.x, rocket.y, 10, 10);
+    }
+
+    (function loop() {
+      drawWorld();
+      window.requestAnimationFrame(loop);
+    })();
   </script>
 </body>
 </html>
