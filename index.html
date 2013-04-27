@@ -1,0 +1,23 @@
+<html>
+<head>
+  <title>Rockets!</title>
+  <style type="text/css">
+    body {
+      margin: 0px;
+      padding: 0px;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="space"></canvas>
+
+  <script type="text/javascript">
+    var canvas = document.getElementById('space');
+    canvas.width = document.width;
+    canvas.height = document.height;
+
+    var ctx = canvas.getContext('2d');
+    ctx.strokeText('Hello, canvas!', 100, 100);
+  </script>
+</body>
+</html>
