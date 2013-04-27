@@ -1,0 +1,28 @@
+<html>
+<head>
+  <title>Mission Control</title>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.10/socket.io.min.js" type="text/javascript"></script>
+</head>
+<body>
+
+<script type="text/javascript">
+  var socket = io.connect('http://localhost:8080');
+  var rocketId = randomGUID();
+
+  setInterval(function() {
+    socket.emit('control', {
+      id: rocketId,
+      angle: Math.random(),
+      speed: 2
+    });
+  }, 1000);
+
+  function randomGUID() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+        return v.toString(16);
+    });
+  }
+</script>
+</body>
+</html>

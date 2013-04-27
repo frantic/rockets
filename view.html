@@ -19,56 +19,41 @@
 
     var ctx = canvas.getContext('2d');
     var gameRunning = true;
+    var rockets = [];
 
-    var keyCode = {
-      LEFT : 37,
-      UP   : 38,
-      RIGHT: 39,
-      DOWN : 40
+    function findRocket(id) {
+      var match = null;
+
+      rockets.forEach(function(rocket) {
+        if (rocket.id == id) {
+          match = rocket;
+        }
+      });
+
+      return match;
     }
 
-    var rocket = {
-      x: width / 2.0,
-      y: height / 2.0,
-      speed: 3,
-      angle: 3,
-      size: 5
-    }
-
-    var navigation = {
-      37 : {x: -1, y:  0},
-      38 : {x:  0, y: -1},
-      39 : {x:  1, y:  0},
-      40 : {x:  0, y:  1}
-    }
-
-    document.onkeydown = function(e) {
-      e = e || window.event;
-
-      if (e.keyCode == 27) {
-
-        gameRunning = false;
-      }
-
-      if (e.keyCode == keyCode.LEFT) {
-        rocket.angle += 0.1;
-      }
-      if (e.keyCode == keyCode.RIGHT) {
-        rocket.angle -= 0.1;
-      }
-      if (e.keyCode == keyCode.UP) {
-        rocket.speed += 1;
-      }
-      if (e.keyCode == keyCode.DOWN) {
-        rocket.speed -= 1;
-      }
+    function createRocket(rocketData) {
+      var rocket = {
+        id: rocketData.id,
+        x: width * Math.random(),
+        y: height * Math.random(),
+        speed: 0.1,
+        angle: 0,
+        size: 5
+      };
+      rockets.push(rocket);
+      return rocket;
     }
 
     function drawWorld() {
-      drawRocket(rocket);
+      ctx.fillText(rockets.length, 20, 20);
+      rockets.forEach(function(rocket) {
+        drawRocket(rocket);
+      });
     }
 
-    function drawRocket() {
+    function drawRocket(rocket) {
       var shift = {x: Math.cos(rocket.angle), y: -Math.sin(rocket.angle)}
       rocket.x += rocket.speed * shift.x;
       rocket.y += rocket.speed * shift.y;
@@ -96,9 +81,12 @@
     }
 
     var socket = io.connect('http://localhost:8080');
-    socket.on('news', function (data) {
-      console.log(data);
-      socket.emit('my other event', { my: 'data' });
+    socket.emit('serve');
+    socket.on('control', function (data) {
+      var rocket = findRocket(data.id) || createRocket(data);
+
+      rocket.angle = data.angle;
+      rocket.speed = data.speed;
     });
 
     (function loop() {
