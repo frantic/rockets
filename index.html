@@ -17,6 +17,7 @@
     var height = canvas.height = document.height;
 
     var ctx = canvas.getContext('2d');
+    var gameRunning = true;
 
     var keyCode = {
       LEFT : 37,
@@ -28,7 +29,9 @@
     var rocket = {
       x: width / 2.0,
       y: height / 2.0,
-      speed: 5
+      speed: 3,
+      angle: 3,
+      size: 5
     }
 
     var navigation = {
@@ -40,20 +43,62 @@
 
     document.onkeydown = function(e) {
       e = e || window.event;
-      shift = navigation[e.keyCode];
-      if (shift) {
-        rocket.x += rocket.speed * shift.x;
-        rocket.y += rocket.speed * shift.y;
+
+      if (e.keyCode == 27) {
+        gameRunning = false;
+      }
+
+      if (e.keyCode == keyCode.LEFT) {
+        rocket.angle += 0.1;
+      }
+      if (e.keyCode == keyCode.RIGHT) {
+        rocket.angle -= 0.1;
+      }
+      if (e.keyCode == keyCode.UP) {
+        rocket.speed += 1;
+      }
+      if (e.keyCode == keyCode.DOWN) {
+        rocket.speed -= 1;
       }
     }
 
-    function drawWorld () {
-      ctx.fillRect(rocket.x, rocket.y, 10, 10);
+    function drawWorld() {
+      drawRocket(rocket);
+    }
+
+    function drawRocket() {
+      var shift = {x: Math.cos(rocket.angle), y: -Math.sin(rocket.angle)}
+      rocket.x += rocket.speed * shift.x;
+      rocket.y += rocket.speed * shift.y;
+      rocket.x = Math.abs(rocket.x + width) % width;
+      rocket.y = Math.abs(rocket.y + height) % height;
+      ctx.beginPath();
+      ctx.arc(rocket.x, rocket.y, rocket.size, 0, 2 * Math.PI);
+      ctx.fill();
+
+      var tail = {length: rocket.speed * 5 + Math.random() * 10};
+      tail.x = rocket.x - tail.length * shift.x;
+      tail.y = rocket.y - tail.length * shift.y;
+      tail.angle = Math.atan2(tail.length, rocket.size);
+
+      var angle1 = rocket.angle + tail.angle;
+      var point1 = {x: rocket.x + rocket.size * Math.cos(angle1), y: rocket.y - rocket.size * Math.sin(angle1)};
+      var angle2 = rocket.angle - tail.angle;
+      var point2 = {x: rocket.x + rocket.size * Math.cos(angle2), y: rocket.y - rocket.size * Math.sin(angle2)};
+
+      ctx.beginPath();
+      ctx.moveTo(point2.x, point2.y);
+      ctx.lineTo(tail.x, tail.y);
+      ctx.lineTo(point1.x, point1.y);
+      ctx.stroke();
     }
 
     (function loop() {
+      ctx.clearRect(0, 0, width, height);
       drawWorld();
-      window.requestAnimationFrame(loop);
+      if (gameRunning) {
+        window.requestAnimationFrame(loop);
+      }
     })();
   </script>
 </body>
