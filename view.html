@@ -6,6 +6,7 @@
     body {
       margin: 0px;
       padding: 0px;
+      background-color: black;
     }
   </style>
 </head>
@@ -40,7 +41,8 @@
         y: height * Math.random(),
         speed: 0.1,
         angle: 0,
-        size: 5
+        size: 10,
+        color: rocketData.color
       };
       rockets.push(rocket);
       return rocket;
@@ -59,25 +61,43 @@
       rocket.y += rocket.speed * shift.y;
       rocket.x = Math.abs(rocket.x + width) % width;
       rocket.y = Math.abs(rocket.y + height) % height;
-      ctx.beginPath();
-      ctx.arc(rocket.x, rocket.y, rocket.size, 0, 2 * Math.PI);
-      ctx.fill();
 
-      var tail = {length: rocket.speed * 5 + Math.random() * 10};
+      var tail = {length: rocket.speed * 5 + Math.random() * 7};
       tail.x = rocket.x - tail.length * shift.x;
       tail.y = rocket.y - tail.length * shift.y;
       tail.angle = Math.atan2(tail.length, rocket.size);
 
       var angle1 = rocket.angle + tail.angle;
-      var point1 = {x: rocket.x + rocket.size * Math.cos(angle1), y: rocket.y - rocket.size * Math.sin(angle1)};
+      var point1 = {x: rocket.x + rocket.size * 0.6 * Math.cos(angle1), y: rocket.y - rocket.size * 0.6 * Math.sin(angle1)};
       var angle2 = rocket.angle - tail.angle;
-      var point2 = {x: rocket.x + rocket.size * Math.cos(angle2), y: rocket.y - rocket.size * Math.sin(angle2)};
+      var point2 = {x: rocket.x + rocket.size * 0.6 * Math.cos(angle2), y: rocket.y - rocket.size * 0.6 * Math.sin(angle2)};
 
+      var points = [
+        {x: rocket.x, y: rocket.y - rocket.size},
+        {x: rocket.x, y: rocket.y + rocket.size},
+        {x: rocket.x + rocket.size * 2, y: rocket.y}
+      ];
+      var rotated = points.map(function (point) { return  rotate(point, rocket, - rocket.angle); });
+
+      ctx.strokeStyle = ctx.fillStyle = rocket.color;
+      ctx.beginPath();
+      ctx.moveTo(rotated[0].x, rotated[0].y);
+      rotated.forEach(function (p) {
+        ctx.lineTo(p.x, p.y);
+      });
+      ctx.fill();
       ctx.beginPath();
       ctx.moveTo(point2.x, point2.y);
       ctx.lineTo(tail.x, tail.y);
       ctx.lineTo(point1.x, point1.y);
       ctx.stroke();
+    }
+
+    function rotate (point, center, angle) {
+      return {
+        x: Math.cos(angle) * (point.x - center.x) - Math.sin(angle) * (point.y - center.y) + center.x,
+        y: Math.sin(angle) * (point.x - center.x) + Math.cos(angle) * (point.y - center.y) + center.y
+      }
     }
 
     var socket = io.connect('http://localhost:8080');
