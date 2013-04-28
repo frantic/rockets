@@ -16,8 +16,6 @@
       font-family: 'Monaco', 'Consolas', monospace;
     }
     #controller {
-      width: 320px;
-      height: 320px;
       background-color: black;
     }
   </style>
@@ -25,21 +23,29 @@
 <body>
 
   <canvas id="controller"></canvas>
-  <div id="screen">TEST</div>
+  <div id="screen">Loading...</div>
 
 <script type="text/javascript">
+  var is_touch_device = 'ontouchstart' in document.documentElement;
+  var screenElem = document.getElementById('screen');
+  var controllerElem = document.getElementById('controller');
+
+  if (!is_touch_device) {
+    screenElem.innerHTML = 'Sorry, you have to use phone or tablet to control a rocket!';
+    controllerElem.style.display = 'none';
+  }
+
+
   var socket = io.connect('http://' + window.location.hostname + ':8080');
   var rocketId = randomGUID();
   var rocketColor = '#' + ('00000'+(Math.random()*(1 << 24)|0).toString(16)).slice(-6);
 
-  var screenElem = document.getElementById('screen')
-  screenElem.innerHTML = rocketId;
-  // screenElem.style.color = rocketColor;
 
-  var controllerElem = document.getElementById('controller');
-  controllerElem.width = 320;
-  controllerElem.height = 320;
-  var width = controllerElem.width, height = controllerElem.height;
+  screenElem.innerHTML = 'Game On!';
+
+  var width = document.width, height = document.width;
+  controllerElem.width = width;
+  controllerElem.height = height;
   var center = {x: width / 2, y: height / 2};
   var ctx = controllerElem.getContext('2d');
   ctx.fillStyle = rocketColor;
