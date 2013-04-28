@@ -21,6 +21,15 @@
     var ctx = canvas.getContext('2d');
     var gameRunning = true;
     var rockets = [];
+    var bonus = {};
+
+    function createBonus() {
+      var size = Math.max(bonus.size ? bonus.size * 0.9 : 80, 3),
+          x = (width - 2 * size) * Math.random() + size,
+          y = (height - 2 * size) * Math.random() + size;
+
+      bonus = {size: size, x: x, y: y};
+    }
 
     function findRocket(id) {
       var match = null;
@@ -42,6 +51,7 @@
         speed: 0.1,
         angle: 0,
         size: 10,
+        score: 0,
         color: rocketData.color
       };
       rockets.push(rocket);
@@ -52,7 +62,12 @@
       ctx.fillText(rockets.length, 20, 20);
       rockets.forEach(function(rocket) {
         drawRocket(rocket);
+        checkForBonus(rocket);
       });
+      ctx.strokeStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(bonus.x, bonus.y, bonus.size, 0, 2 * Math.PI);
+      ctx.stroke();
     }
 
     function drawRocket(rocket) {
@@ -114,12 +129,28 @@
       rocket.speed = data.speed;
     });
 
+    function checkForBonus(rocket) {
+      var dx = rocket.x - bonus.x,
+          dy = rocket.y - bonus.y;
+      if (dx * dx + dy * dy < bonus.size * bonus.size) {
+        rocket.score += 1;
+        socket.emit('score', {id: rocket.id, score: rocket.score});
+        ctx.fillStyle = rocket.color;
+        ctx.beginPath();
+        ctx.arc(bonus.x, bonus.y, bonus.size, 0, 2 * Math.PI);
+        ctx.fill();
+        createBonus();
+      }
+    }
+
     setInterval(function () {
       var now = new Date().getTime();
       rockets = rockets.filter(function (rocket) {
         return now - rocket.lastActive < 20000;
       });
     }, 1000);
+
+    createBonus();
 
     (function loop() {
       ctx.clearRect(0, 0, width, height);
