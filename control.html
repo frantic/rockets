@@ -28,7 +28,7 @@
   <div id="screen">TEST</div>
 
 <script type="text/javascript">
-  var socket = io.connect('http://172.17.58.88:8080');
+  var socket = io.connect('http://' + window.location.hostname + ':8080');
   var rocketId = randomGUID();
   var rocketColor = '#' + ('00000'+(Math.random()*(1 << 24)|0).toString(16)).slice(-6);
 
