@@ -105,9 +105,17 @@
     socket.on('control', function (data) {
       var rocket = findRocket(data.id) || createRocket(data);
 
+      rocket.lastActive = new Date().getTime();
       rocket.angle = data.angle;
       rocket.speed = data.speed;
     });
+
+    setInterval(function () {
+      var now = new Date().getTime();
+      rockets = rockets.filter(function (rocket) {
+        return now - rocket.lastActive < 20000;
+      });
+    }, 1000);
 
     (function loop() {
       ctx.clearRect(0, 0, width, height);
