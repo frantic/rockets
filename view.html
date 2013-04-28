@@ -59,9 +59,10 @@
     }
 
     function drawWorld() {
-      ctx.fillText(rockets.length, 20, 20);
-      rockets.forEach(function(rocket) {
+      rockets.forEach(function(rocket, idx) {
         drawRocket(rocket);
+        ctx.font = 'bold 40px Helvetica';
+        ctx.fillText(rocket.score, 10, 40 * (idx + 1));
         checkForBonus(rocket);
       });
       ctx.strokeStyle = '#ffffff';
