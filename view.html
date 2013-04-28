@@ -135,10 +135,18 @@
       if (dx * dx + dy * dy < bonus.size * bonus.size) {
         rocket.score += 1;
         socket.emit('score', {id: rocket.id, score: rocket.score});
-        ctx.fillStyle = rocket.color;
-        ctx.beginPath();
-        ctx.arc(bonus.x, bonus.y, bonus.size, 0, 2 * Math.PI);
-        ctx.fill();
+
+        var x = bonus.x, y = bonus.y, r = bonus.size, w = 15;
+        (function wave() {
+          r += 3; w -= 1;
+          ctx.strokeStyle = rocket.color;
+          ctx.beginPath();
+          ctx.arc(x, y, r, 0, 2 * Math.PI);
+          ctx.stroke();
+          if (w > 0) {
+            setTimeout(function() {requestAnimationFrame(wave)}, 15);
+          }
+        })();
         createBonus();
       }
     }
