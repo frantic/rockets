@@ -86,6 +86,10 @@
         ctx.lineTo(p.x, p.y);
       });
       ctx.fill();
+
+      if (Math.abs(rocket.speed) < 1)
+        return;
+
       ctx.beginPath();
       ctx.moveTo(point2.x, point2.y);
       ctx.lineTo(tail.x, tail.y);
