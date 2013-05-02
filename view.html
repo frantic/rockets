@@ -120,7 +120,7 @@
       }
     }
 
-    var socket = io.connect('http://' + window.location.hostname + ':8080');
+    var socket = io.connect('http://' + window.location.host);
     socket.emit('serve');
     socket.on('control', function (data) {
       var rocket = findRocket(data.id) || createRocket(data);
