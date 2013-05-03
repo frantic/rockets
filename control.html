@@ -62,6 +62,10 @@
       }
       event.preventDefault();
     });
+    canvas.addEventListener('touchend', function(event) {
+      rocket.speed = 0;
+      control();
+    });
   } else {
     var navigation = {
       37 : {angle:  0.1, speed:  0.00}, // Left
@@ -106,6 +110,8 @@
     ctx.moveTo(center.x, center.y);
     ctx.lineTo(x, y);
     ctx.stroke();
+
+    ctx.fillText("SPEED: " + (Math.round(rocket.speed * 100)) + "%", 10, 30);
   }
 
   function sendRocketCommand() {

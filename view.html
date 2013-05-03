@@ -237,6 +237,9 @@
       });
       ctx.fill();
 
+      if (rocket.speed < 0.05)
+        return;
+
       ctx.beginPath();
       ctx.moveTo(point2.x, point2.y);
       ctx.lineTo(tail.x, tail.y);
