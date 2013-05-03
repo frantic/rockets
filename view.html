@@ -8,12 +8,21 @@
       padding: 0px;
       background-color: black;
     }
+    #qrcode {
+      position:absolute;
+      bottom:20px;
+      right:20px;
+    }
   </style>
 </head>
 <body>
+  
   <canvas id="space"></canvas>
+  <img id="qrcode" width="20%">
 
   <script type="text/javascript">
+    var HOST_URL = 'http://' + window.location.host;
+
     var canvas = document.getElementById('space');
     var width = canvas.width = document.width;
     var height = canvas.height = document.height;
@@ -120,7 +129,7 @@
       }
     }
 
-    var socket = io.connect('http://' + window.location.host);
+    var socket = io.connect(HOST_URL);
     socket.emit('serve');
     socket.on('control', function (data) {
       var rocket = findRocket(data.id) || createRocket(data);
@@ -167,6 +176,9 @@
         window.requestAnimationFrame(loop);
       }
     })();
+
+    document.getElementById('qrcode').src = 'http://qrfree.kaywa.com/?l=1&s=8&d='
+      + encodeURIComponent(HOST_URL + '/control');
   </script>
 </body>
 </html>
