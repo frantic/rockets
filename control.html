@@ -23,36 +23,81 @@
 <body>
 
   <canvas id="controller"></canvas>
-  <div id="screen">Loading...</div>
 
 <script type="text/javascript">
-  var is_touch_device = 'ontouchstart' in document.documentElement;
-  var screenElem = document.getElementById('screen');
-  var controllerElem = document.getElementById('controller');
-
-  if (!is_touch_device) {
-    screenElem.innerHTML = 'Sorry, you have to use phone or tablet to control a rocket!';
-    controllerElem.style.display = 'none';
-  }
-
+  var isTouchDevice = 'ontouchstart' in document.documentElement;
+  var canvas = document.getElementById('controller');
 
   var socket = io.connect('http://' + window.location.host);
-  var spaceId = window.location.pathname.substring(1);
-  var rocketId = randomGUID();
-  var rocketColor = '#' + ('00000'+(Math.random()*(1 << 24)|0).toString(16)).slice(-6);
+  var rocket = {
+    id: randomGUID(),
+    spaceId: window.location.pathname.substring(1),
+    color: randomColor(),
+    angle: Math.PI / 2.0,
+    speed: 0
+  };
 
+  var width = canvas.width = document.width,
+      height = canvas.height = document.height;
 
-  screenElem.innerHTML = 'Game On!';
-
-  var width = document.width, height = document.width;
-  controllerElem.width = width;
-  controllerElem.height = height;
   var center = {x: width / 2, y: height / 2};
-  var ctx = controllerElem.getContext('2d');
-  ctx.fillStyle = rocketColor;
-  ctx.strokeStyle = rocketColor;
+  var maxRadius = Math.min(width, height) / 2 - 20;
 
-  function controlRocket (x, y) {
+  var ctx = canvas.getContext('2d');
+  ctx.fillStyle = rocket.color;
+  ctx.strokeStyle = rocket.color;
+
+  if (isTouchDevice) {
+    canvas.addEventListener('touchmove', function(event) {
+      if (event.targetTouches.length == 1) {
+        var touch = event.targetTouches[0];
+        var x = touch.clientX,
+            y = touch.clientY,
+            dx = x - center.x,
+            dy = center.y - y;
+
+        rocket.angle = Math.atan2(dy, dx);
+        rocket.speed = Math.min(1, Math.sqrt(dx*dx + dy*dy) / maxRadius);
+        control();
+      }
+      event.preventDefault();
+    });
+  } else {
+    var navigation = {
+      37 : {angle:  0.1, speed:  0.00}, // Left
+      38 : {angle:  0.0, speed:  0.05}, // Up
+      39 : {angle: -0.1, speed:  0.00}, // Right
+      40 : {angle:  0.0, speed: -0.05}  // Down
+    }
+    document.onkeydown = function(e) {
+      e = e || window.event;
+      var shift = navigation[e.keyCode];
+      if (shift) {
+        rocket.angle += shift.angle;
+        rocket.speed += shift.speed;
+
+        rocket.speed = Math.min(1, Math.max(0, rocket.speed));
+        control();
+      }
+    }
+  }
+
+  // setInterval(function() {
+  //   rocket.speed = Math.max(0, rocket.speed - 0.01);
+  //   drawController(rocket.angle, rocket.speed);
+  // }, 100);
+
+
+  function control() {
+    drawRocketController();
+    sendRocketCommand();
+  }
+
+  function drawRocketController() {
+    var radius = maxRadius * rocket.speed,
+        x = center.x + radius * Math.cos(rocket.angle) * rocket.speed,
+        y = center.y - radius * Math.sin(rocket.angle) * rocket.speed;
+
     ctx.clearRect(0, 0, width, height);
     ctx.beginPath();
     ctx.arc(x, y, 20, 0, 2 * Math.PI);
@@ -61,41 +106,21 @@
     ctx.moveTo(center.x, center.y);
     ctx.lineTo(x, y);
     ctx.stroke();
-
-    var dx = x - center.x, dy = center.y - y;
-    var angle = Math.atan2(dy, dx);
-    var distance = Math.sqrt(dx*dx + dy*dy);
-    ctx.fillText(angle, 10, 10);
-    ctx.fillText(distance/30, 10, 30);
-
-    socket.emit('control', {
-      spaceId: spaceId,
-      id: rocketId,
-      color: rocketColor,
-      angle: angle,
-      speed: distance / 30
-    });
   }
 
-  controllerElem.addEventListener('touchmove', function(event) {
-    if (event.targetTouches.length == 1) {
-      var touch = event.targetTouches[0];
-      controlRocket(touch.clientX, touch.clientY);
-    }
-    event.preventDefault();
-  });
-
-  controllerElem.addEventListener('touchend', function(event) {
-    controlRocket(center.x, center.y);
-  });
-
-  controlRocket(center.x, center.y);
+  function sendRocketCommand() {
+    socket.emit('control', rocket);
+  }
 
   function randomGUID() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
         var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
         return v.toString(16);
     });
+  }
+
+  function randomColor() {
+    return '#' + ('00000'+(Math.random()*(1 << 24)|0).toString(16)).slice(-6);
   }
 </script>
 </body>
