@@ -68,6 +68,12 @@
       width: 16%;
       top: 10px;
     }
+    #space_url {
+      margin: 10px auto;
+      padding: 5px;
+      border: solid 1px #eee;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -78,7 +84,7 @@
       <img id="logo" src="img/rocket.svg"/>
       <div id="url2login">
         <div>Scan the code or go to this url on your mobile to connect to game</div>
-        <input type="text" value="<URL WILL BE HERE>"/>
+        <div id="space_url" href="#" target="_blank">Creating Space...</div>
       </div>
       <button id="pausebutton" type="button" onclick="pauseGame()">Pause</button>
       <button id="playbutton" type="button" onclick="resumeGame()">Play</button>
@@ -269,6 +275,7 @@
 
     document.getElementById('qrcode').src = 'http://qrfree.kaywa.com/?l=1&s=8&d='
       + encodeURIComponent(HOST_URL + '/' + spaceId);
+    document.getElementById('space_url').innerText = HOST_URL + '/' + spaceId;
 
     function randomID(length) {
       var text = "";
