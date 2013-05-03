@@ -8,30 +8,99 @@
       padding: 0px;
       background-color: black;
     }
+    #space {
+      width: auto;
+      height: auto;
+    }
+    #overlay {
+      background-color: rgba(255,255,255,0.5);
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
     #qrcode {
-      position:absolute;
-      bottom:20px;
-      right:20px;
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+    }
+    #panel {
+      position: absolute;
+      left: 25%;
+      top: 25%;
+      width: 50%;
+      height: 50%;
+      background: white;
+      border-radius: 20px;
+    }
+    #url2login {
+      position: absolute;
+      top: 30%;
+      width: 70%;
+      left: 15%;
+      height: 40%;
+    }
+    #url2login input {
+      margin-top: 5px;
+      width: 100%;
+      height: 40px;
+    }
+    #url2login div {
+      font-size: 12pt;
+    }
+    #back2gamebtn {
+      position: absolute;
+      top: 60%;
+      left: 40%;
+      width: 20%;
+      height: 40px;
+      cursor: pointer;
+    }
+    #logo {
+      position: absolute;
+      top: 1%;
+      left: 42%;
+      width: 16%;
     }
   </style>
 </head>
 <body>
 
   <canvas id="space"></canvas>
-  <img id="qrcode" width="20%">
+  <div id="overlay" onmousemove="pauseGame()">
+    <div id="panel">
+      <img id="logo" src="img/rocket.svg"/>
+      <div id="url2login">
+        <div>Go to this url on your mobile to connect to game</div>
+        <input type="text" value="<URL WILL BE HERE>"/>
+      </div>
+      <button id="back2gamebtn" type="button" onclick="resumeGame()">Back to Game</button>
+    </div>
+    <img id="qrcode" width="20%">
+  </div>
 
   <script type="text/javascript">
     var spaceId = localStorage.spaceId = localStorage.spaceId || randomID(4);
     var HOST_URL = 'http://' + window.location.host;
 
     var canvas = document.getElementById('space');
-    var width = canvas.width = document.width;
-    var height = canvas.height = document.height;
+    var overlay = document.getElementById('overlay');
+    var width = canvas.width = overlay.style.width = document.width;
+    var height = canvas.height = overlay.style.height = document.height;
 
     var ctx = canvas.getContext('2d');
-    var gameRunning = true;
+    var gameRunning = false;
     var rockets = [];
     var bonus = {};
+
+    function resumeGame() {
+      overlay.style.opacity = 0;
+      gameRunning = true;
+    }
+
+    function pauseGame() {
+      gameRunning = false;
+      overlay.style.opacity = 1;
+    }
 
     function createBonus() {
       var size = Math.max(bonus.size ? bonus.size * 0.9 : 80, 3),

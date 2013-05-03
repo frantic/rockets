@@ -10,6 +10,10 @@ app.get('/', function (req, res) {
   res.sendfile(__dirname + '/view.html');
 });
 
+app.get('/img/rocket.svg', function (req, res) {
+  res.sendfile(__dirname + '/img/rocket.svg');
+});
+
 app.get('/:spaceid', function (req, res) {
   res.sendfile(__dirname + '/control.html');
 });
