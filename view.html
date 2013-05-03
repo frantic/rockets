@@ -8,12 +8,8 @@
       padding: 0px;
       background-color: black;
     }
-    #space {
-      width: auto;
-      height: auto;
-    }
     #overlay {
-      background-color: rgba(255,255,255,0.5);
+      background-color: transparent;
       position: absolute;
       top: 0;
       left: 0;
@@ -21,20 +17,21 @@
     #qrcode {
       position: absolute;
       bottom: 20px;
-      right: 20px;
+      width: 80%;
+      left: 10%;
     }
     #panel {
       position: absolute;
-      left: 25%;
-      top: 25%;
-      width: 50%;
-      height: 50%;
+      right: 10px;
+      bottom: 10px;
+      width: 20%;
+      height: 60%;
       background: white;
       border-radius: 20px;
     }
     #url2login {
       position: absolute;
-      top: 30%;
+      top: 25%;
       width: 70%;
       left: 15%;
       height: 40%;
@@ -42,40 +39,51 @@
     #url2login input {
       margin-top: 5px;
       width: 100%;
-      height: 40px;
+      height: 30px;
     }
     #url2login div {
       font-size: 12pt;
     }
-    #back2gamebtn {
+    #pausebutton {
       position: absolute;
-      top: 60%;
-      left: 40%;
-      width: 20%;
+
+      top: 15%;
+      left: 25%;
+      width: 50%;
+      height: 40px;
+      cursor: pointer;
+    }
+    #playbutton {
+      position: absolute;
+      display: none;
+      top: 15%;
+      left: 25%;
+      width: 50%;
       height: 40px;
       cursor: pointer;
     }
     #logo {
       position: absolute;
-      top: 1%;
       left: 42%;
       width: 16%;
+      top: 10px;
     }
   </style>
 </head>
 <body>
 
   <canvas id="space"></canvas>
-  <div id="overlay" onmousemove="pauseGame()">
+  <div id="overlay" onmousemove="showPanel()">
     <div id="panel">
       <img id="logo" src="img/rocket.svg"/>
       <div id="url2login">
-        <div>Go to this url on your mobile to connect to game</div>
+        <div>Scan the code or go to this url on your mobile to connect to game</div>
         <input type="text" value="<URL WILL BE HERE>"/>
       </div>
-      <button id="back2gamebtn" type="button" onclick="resumeGame()">Back to Game</button>
+      <button id="pausebutton" type="button" onclick="pauseGame()">Pause</button>
+      <button id="playbutton" type="button" onclick="resumeGame()">Play</button>
+      <img id="qrcode">
     </div>
-    <img id="qrcode" width="20%">
   </div>
 
   <script type="text/javascript">
@@ -88,18 +96,30 @@
     var height = canvas.height = overlay.style.height = document.height;
 
     var ctx = canvas.getContext('2d');
-    var gameRunning = false;
+    var gameRunning = true;
     var rockets = [];
     var bonus = {};
 
     function resumeGame() {
-      overlay.style.opacity = 0;
       gameRunning = true;
+      document.getElementById('playbutton').style.display = 'none';
+      document.getElementById('pausebutton').style.display = 'block';
+      overlay.style.background = 'transparent';
     }
 
     function pauseGame() {
       gameRunning = false;
-      overlay.style.opacity = 1;
+      overlay.style.background = "rgba(255,255,255,0.5)";
+      document.getElementById('playbutton').style.display = 'block';
+      document.getElementById('pausebutton').style.display = 'none';
+    }
+
+    function showPanel() {
+      overlay.style.display = '';
+    }
+
+    function hidePanel() {
+      overlay.style.display = 'none';
     }
 
     function createBonus() {
@@ -152,10 +172,13 @@
 
     function drawRocket(rocket) {
       var shift = {x: Math.cos(rocket.angle), y: -Math.sin(rocket.angle)}
-      rocket.x += rocket.speed * shift.x;
-      rocket.y += rocket.speed * shift.y;
-      rocket.x = Math.abs(rocket.x + width) % width;
-      rocket.y = Math.abs(rocket.y + height) % height;
+
+      if (gameRunning) {
+        rocket.x += rocket.speed * shift.x;
+        rocket.y += rocket.speed * shift.y;
+        rocket.x = Math.abs(rocket.x + width) % width;
+        rocket.y = Math.abs(rocket.y + height) % height;
+      }
 
       var tail = {length: rocket.speed * 5 + Math.random() * 7};
       tail.x = rocket.x - tail.length * shift.x;
@@ -233,7 +256,7 @@
     setInterval(function () {
       var now = new Date().getTime();
       rockets = rockets.filter(function (rocket) {
-        return now - rocket.lastActive < 20000;
+        return !gameRunning || now - rocket.lastActive < 20000;
       });
     }, 1000);
 
@@ -242,9 +265,7 @@
     (function loop() {
       ctx.clearRect(0, 0, width, height);
       drawWorld();
-      if (gameRunning) {
-        window.requestAnimationFrame(loop);
-      }
+      window.requestAnimationFrame(loop);
     })();
 
     document.getElementById('qrcode').src = 'http://qrfree.kaywa.com/?l=1&s=8&d='
