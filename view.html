@@ -33,16 +33,9 @@
     #url2login {
       position: absolute;
       top: 25%;
-      width: 70%;
-      left: 15%;
+      width: 90%;
+      left: 5%;
       height: 40%;
-    }
-    #url2login input {
-      margin-top: 5px;
-      width: 100%;
-      height: 30px;
-    }
-    #url2login div {
       font-size: 12pt;
     }
     #pausebutton {
@@ -73,6 +66,7 @@
       padding: 5px;
       border: solid 1px #eee;
       font-weight: bold;
+      text-align: center;
     }
   </style>
 </head>
@@ -84,7 +78,7 @@
       <img id="logo" src="img/rocket.svg"/>
       <div id="url2login">
         <div>Scan the code or go to this url on your mobile to connect to game</div>
-        <div id="space_url" href="#" target="_blank">Creating Space...</div>
+        <div id="space_url">Creating Space...</div>
       </div>
       <button id="pausebutton" type="button" onclick="pauseGame()">Pause</button>
       <button id="playbutton" type="button" onclick="resumeGame()">Play</button>
@@ -109,6 +103,9 @@
 
     var mouseLastMoved = new Date().getTime();
     var mouseOnPanel = false;
+    var fadeOutAnimationOn = false;
+    var overlayVisible = true;
+    var fadeOutAnimation;
 
     function resumeGame() {
       gameRunning = true;
@@ -126,17 +123,29 @@
 
     function showPanel() {
       overlay.style.opacity = 0.8;
+      overlayVisible = true;
     }
 
-    function hidePanel(time) {
-      if (time > 1500 && time < 3000) {
-        overlay.style.opacity = 0.8 - ((time-1500) / 1000);
+    function hidePanel() {
+      var opacity = 80;
+
+      function fadeOut() {
+        overlay.style.opacity = "0."+opacity;
+        opacity-=2;
+        if (opacity <= 10) {
+          window.clearInterval(fadeOutAnimation);
+          overlay.style.opacity = 0;
+          fadeOutAnimationOn = false;
+          overlayVisible = false;
+        }
       }
-      else if (time >= 3000)
-        overlay.style.opacity = 0;
+
+      fadeOutAnimation = window.setInterval(fadeOut, 20);
     }
 
     function mouseMoved(event) {
+      window.clearInterval(fadeOutAnimation);
+      fadeOutAnimationOn = false;
       mouseLastMoved = new Date().getTime();
       showPanel();
       var mouseX = Math.round (event.clientX);
@@ -148,10 +157,12 @@
 
     setInterval(function () {
       var now = new Date().getTime();
-      if (!mouseOnPanel && gameRunning) {
-        hidePanel(now - mouseLastMoved);
+      if (!fadeOutAnimationOn && !mouseOnPanel && gameRunning
+          && now - mouseLastMoved > 2000 && overlayVisible) {
+        fadeOutAnimationOn = true;
+        hidePanel();
       }
-    }, 10);
+    }, 1000);
 
     function createBonus() {
       var size = Math.max(bonus.size ? bonus.size * 0.9 : 80, 3),
