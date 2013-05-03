@@ -135,7 +135,6 @@
           dy = rocket.y - bonus.y;
       if (dx * dx + dy * dy < bonus.size * bonus.size) {
         rocket.score += 1;
-        socket.emit('score', {id: rocket.id, score: rocket.score});
 
         var x = bonus.x, y = bonus.y, r = bonus.size, w = 15;
         (function wave() {
