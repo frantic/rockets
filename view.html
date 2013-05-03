@@ -99,6 +99,7 @@
     var gameRunning = true;
     var rockets = [];
     var bonus = {};
+    var speedRatio = 5;
 
     function resumeGame() {
       gameRunning = true;
@@ -147,7 +148,7 @@
         id: rocketData.id,
         x: width * Math.random(),
         y: height * Math.random(),
-        speed: 0.1,
+        speed: 0.0,
         angle: 0,
         size: 10,
         score: 0,
@@ -172,15 +173,16 @@
 
     function drawRocket(rocket) {
       var shift = {x: Math.cos(rocket.angle), y: -Math.sin(rocket.angle)}
+      var speed = rocket.speed * speedRatio;
 
       if (gameRunning) {
-        rocket.x += rocket.speed * shift.x;
-        rocket.y += rocket.speed * shift.y;
+        rocket.x += speed * shift.x;
+        rocket.y += speed * shift.y;
         rocket.x = Math.abs(rocket.x + width) % width;
         rocket.y = Math.abs(rocket.y + height) % height;
       }
 
-      var tail = {length: rocket.speed * 5 + Math.random() * 7};
+      var tail = {length: speed * 2 + Math.random() * 7};
       tail.x = rocket.x - tail.length * shift.x;
       tail.y = rocket.y - tail.length * shift.y;
       tail.angle = Math.atan2(tail.length, rocket.size);
@@ -204,9 +206,6 @@
         ctx.lineTo(p.x, p.y);
       });
       ctx.fill();
-
-      if (Math.abs(rocket.speed) < 1)
-        return;
 
       ctx.beginPath();
       ctx.moveTo(point2.x, point2.y);
