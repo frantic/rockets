@@ -2,7 +2,7 @@ var app = require('express')()
   , server = require('http').createServer(app)
   , io = require('socket.io').listen(server);
 
-server.listen(8080);
+server.listen(process.env.PORT || 8080);
 
 var spaceSocket = null;
 var clients = {};
