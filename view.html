@@ -9,10 +9,11 @@
       background-color: black;
     }
     #overlay {
-      background-color: transparent;
+      background: transparent;
       position: absolute;
       top: 0;
       left: 0;
+      opacity: 0.8;
     }
     #qrcode {
       position: absolute;
@@ -46,7 +47,6 @@
     }
     #pausebutton {
       position: absolute;
-
       top: 15%;
       left: 25%;
       width: 50%;
@@ -79,7 +79,7 @@
 <body>
 
   <canvas id="space"></canvas>
-  <div id="overlay" onmousemove="showPanel()">
+  <div id="overlay" onmousemove="mouseMoved(event);">
     <div id="panel">
       <img id="logo" src="img/rocket.svg"/>
       <div id="url2login">
@@ -107,6 +107,9 @@
     var bonus = {};
     var speedRatio = 5;
 
+    var mouseLastMoved = new Date().getTime();
+    var mouseOnPanel = false;
+
     function resumeGame() {
       gameRunning = true;
       document.getElementById('playbutton').style.display = 'none';
@@ -122,12 +125,33 @@
     }
 
     function showPanel() {
-      overlay.style.display = '';
+      overlay.style.opacity = 0.8;
     }
 
-    function hidePanel() {
-      overlay.style.display = 'none';
+    function hidePanel(time) {
+      if (time > 1500 && time < 3000) {
+        overlay.style.opacity = 0.8 - ((time-1500) / 1000);
+      }
+      else if (time >= 3000)
+        overlay.style.opacity = 0;
     }
+
+    function mouseMoved(event) {
+      mouseLastMoved = new Date().getTime();
+      showPanel();
+      var mouseX = Math.round (event.clientX);
+      var mouseY = Math.round (event.clientY);
+      var panelX = document.getElementById('panel').offsetLeft;
+      var panelY = document.getElementById('panel').offsetTop;
+      mouseOnPanel = mouseX > panelX && mouseY > panelY;
+    }
+
+    setInterval(function () {
+      var now = new Date().getTime();
+      if (!mouseOnPanel && gameRunning) {
+        hidePanel(now - mouseLastMoved);
+      }
+    }, 10);
 
     function createBonus() {
       var size = Math.max(bonus.size ? bonus.size * 0.9 : 80, 3),
