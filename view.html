@@ -104,10 +104,15 @@
     var mouseLastMoved = new Date().getTime();
     var mouseOnPanel = false;
     var fadeOutAnimationOn = false;
-    var overlayVisible = true;
+    var panelVisible = true;
     var fadeOutAnimation;
 
     function resumeGame() {
+      // after a long time pause, to keep rockets connected update lastActive
+      var now = new Date().getTime();
+      rockets.forEach(function(rocket) {
+        rocket.lastActive = now;
+      });
       gameRunning = true;
       document.getElementById('playbutton').style.display = 'none';
       document.getElementById('pausebutton').style.display = 'block';
@@ -123,7 +128,7 @@
 
     function showPanel() {
       overlay.style.opacity = 0.8;
-      overlayVisible = true;
+      panelVisible = true;
     }
 
     function hidePanel() {
@@ -136,7 +141,7 @@
           window.clearInterval(fadeOutAnimation);
           overlay.style.opacity = 0;
           fadeOutAnimationOn = false;
-          overlayVisible = false;
+          panelVisible = false;
         }
       }
 
@@ -157,8 +162,13 @@
 
     setInterval(function () {
       var now = new Date().getTime();
-      if (!fadeOutAnimationOn && !mouseOnPanel && gameRunning
-          && now - mouseLastMoved > 2000 && overlayVisible) {
+      if (!fadeOutAnimationOn // if there is no animation going on
+          && !mouseOnPanel // if mouse is not on panel
+          && gameRunning // if not in pause mode
+          && now - mouseLastMoved > 2000 // wait 2secs before hiding it
+          && panelVisible // if panel is visible
+          && rockets.length > 0 // if there is no rocket connected, don't hide
+        ) {
         fadeOutAnimationOn = true;
         hidePanel();
       }
@@ -301,6 +311,7 @@
       rockets = rockets.filter(function (rocket) {
         return !gameRunning || now - rocket.lastActive < 20000;
       });
+      if (rockets.length == 0) showPanel(); // if all rockets are disconnected, show panel
     }, 1000);
 
     createBonus();
