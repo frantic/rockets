@@ -4,23 +4,24 @@ var app = require('express')()
 
 server.listen(process.env.PORT || 8080);
 
-var spaceSocket = null;
+var spaces = {};
 
 app.get('/', function (req, res) {
   res.sendfile(__dirname + '/view.html');
 });
 
-app.get('/control', function (req, res) {
+app.get('/:spaceid', function (req, res) {
   res.sendfile(__dirname + '/control.html');
 });
 
 io.sockets.on('connection', function (socket) {
 
   socket.on('serve', function(data) {
-    spaceSocket = socket;
+    spaces[data.spaceId] = socket;
   });
 
   socket.on('control', function (data) {
+    var spaceSocket = spaces[data.spaceId];
     if (spaceSocket) {
       spaceSocket.emit('control', data);
     }

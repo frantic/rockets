@@ -37,6 +37,7 @@
 
 
   var socket = io.connect('http://' + window.location.host);
+  var spaceId = window.location.pathname.substring(1);
   var rocketId = randomGUID();
   var rocketColor = '#' + ('00000'+(Math.random()*(1 << 24)|0).toString(16)).slice(-6);
 
@@ -68,6 +69,7 @@
     ctx.fillText(distance/30, 10, 30);
 
     socket.emit('control', {
+      spaceId: spaceId,
       id: rocketId,
       color: rocketColor,
       angle: angle,

@@ -16,11 +16,12 @@
   </style>
 </head>
 <body>
-  
+
   <canvas id="space"></canvas>
   <img id="qrcode" width="20%">
 
   <script type="text/javascript">
+    var spaceId = localStorage.spaceId = localStorage.spaceId || randomID(4);
     var HOST_URL = 'http://' + window.location.host;
 
     var canvas = document.getElementById('space');
@@ -130,7 +131,7 @@
     }
 
     var socket = io.connect(HOST_URL);
-    socket.emit('serve');
+    socket.emit('serve', {spaceId: spaceId});
     socket.on('control', function (data) {
       var rocket = findRocket(data.id) || createRocket(data);
 
@@ -178,7 +179,17 @@
     })();
 
     document.getElementById('qrcode').src = 'http://qrfree.kaywa.com/?l=1&s=8&d='
-      + encodeURIComponent(HOST_URL + '/control');
+      + encodeURIComponent(HOST_URL + '/' + spaceId);
+
+    function randomID(length) {
+      var text = "";
+      var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+      for(var i = 0; i < length; i++)
+          text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+      return text;
+    }
   </script>
 </body>
 </html>
