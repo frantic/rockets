@@ -117,17 +117,19 @@
       document.getElementById('playbutton').style.display = 'none';
       document.getElementById('pausebutton').style.display = 'block';
       overlay.style.background = 'transparent';
+      overlay.style.opacity = 0.8;
     }
 
     function pauseGame() {
       gameRunning = false;
       overlay.style.background = "rgba(255,255,255,0.5)";
+      overlay.style.opacity = 1;
       document.getElementById('playbutton').style.display = 'block';
       document.getElementById('pausebutton').style.display = 'none';
     }
 
     function showPanel() {
-      overlay.style.opacity = 0.8;
+      overlay.style.opacity = gameRunning ? 0.8 : 1;
       panelVisible = true;
     }
 
