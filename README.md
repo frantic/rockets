@@ -2,6 +2,8 @@
 
 Rockets is a multiplayer online game, where players control space rockets with their mobile phones. The main objective is to catch as many white circles as possible. During the game circles become smaller and smaller, which makes game more challenging and fun.
 
+Play online: http://rockets.im
+
 ![Screenshot](screenshot.png)
 
 ## Technical details
